@@ -18,7 +18,7 @@
 ##  The main function take the path of all repos that will be fetched starting from the $base_dir.
 ##  Firstly, for each repository sync, it fetch the data and, if there is any new code, it try to pull starting from the 
 ##  current branch.
-##  All the output are reported and the is no filter for STDERR and STDOUT.
+##  All the output are reported and there is no filter for STDERR and STDOUT.
 ##
 ###################################################################################################################
 ##
