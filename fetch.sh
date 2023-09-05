@@ -23,27 +23,28 @@
 ###################################################################################################################
 ##
 ##  WORKLOG:
-##  2022-05-01		Enrico C.					Initial draft
-##  2022-06-01		Enrico C.					Refactoring and introducing variable
+##  2022-05-01		Enrico C.					Initial draft.
+##  2022-06-01		Enrico C.					Refactoring and introducing variable.
+##  2023-09-05		Enrico C.					Adding semicolon and pulling list of tags.
 ##
 ###################################################################################################################
 
 
-## Color Table
+## Color Table.
 Green='\033[0;32m'        # Green
 Cyan='\033[0;36m'         # Cyan
-# Reset
+# Reset.
 NC='\033[0m'              # Color Text Reset
 
 
 ####################################################################################################################
 
 
-## Variables
+## Variables.
 base_dir="/some/existing/path"
 
-# Setting which ones (single group or all groups) will be fetched
-# $groups variable
+# Setting which ones (single group or all groups) will be fetched.
+# $groups variable.
 if [[ -z $1 ]]; then
     echo -e " ${Green}Fetching all cloned repos${NC}";
     groups=$(find $base_dir/ -maxdepth 1 -type d | tail -n +2 );
@@ -56,18 +57,20 @@ fi
 ####################################################################################################################
 
 
-## Main Function.
-# Set the function that will fetch and pull all repositories
+## Function.
+# Set the function that will fetch and pull all repositories.
 git-fetch-repo-in-group-folder ()
 {
-    # Set the "if" the pick up the current repo and fetch it 
+    # Set the "if" the pick up the current repo and fetch it .
     if [[  -d "$repo_group/$repo_name" ]]; then
         echo -e "--- Fetching the ${Cyan}$group_name/$repo_name${NC} directory ---";
-        git -C "$repo_group/$repo_name" fetch origin --progress --prune 2>&1 | grep " ";
+        git -C "$repo_group/$repo_name" fetch origin --progress --prune --prune-tags 2>&1 | grep " ";
         if [ $? == 0 ]; then
-            echo ""
-            git -C "$repo_group/$repo_name" pull
-        fi
+            echo -e "\n- Upgrading ${Cyan}$(git -C "$repo_group/$repo_name" rev-parse --abbrev-ref HEAD)${NC} branch";
+            git -C "$repo_group/$repo_name" pull origin --autostash --force;
+            echo -e "\n- Upgrading tags list";
+            git -C "$repo_group/$repo_name" pull origin --tags --force;
+        fi;
     fi;
     echo "";
 }
@@ -75,18 +78,18 @@ git-fetch-repo-in-group-folder ()
 
 ####################################################################################################################
 
-
-## This "for loop" sync all the repo inside the group, started from this directory.
+## Script.
+# This "for loop" sync all the repo started from this directory.
 for repo_group in $groups;
 do
     projects=$(find $repo_group/ -maxdepth 1 -type d | tail -n +2 | awk -F "/" '{ print $(NF) }');
-    group_name=$(ls -d $repo_group | awk -F "/" '{ print $(NF) }')
-    for repo_name in $projects
+    group_name=$(ls -d $repo_group | awk -F "/" '{ print $(NF) }');
+    for repo_name in $projects;
     do
         echo "";
         echo -e " ${Green}Fetching the $repo_group group${NC} ";
         echo "";
-        cd $base_dir/
-        git-fetch-repo-in-group-folder
+        cd $base_dir/;
+        git-fetch-repo-in-group-folder;
     done
 done
